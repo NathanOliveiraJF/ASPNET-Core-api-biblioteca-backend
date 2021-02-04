@@ -8,6 +8,6 @@ namespace Biblioteca.Api.Models
         public string Titulo { get; set; }
         public string Editora { get; set; }
         public string Foto { get; set; }
-        public List<Ator> Autores { get; set; }
+        public ICollection<Ator> Atores { get; set; }
     }
 }

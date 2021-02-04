@@ -22,32 +22,67 @@ namespace Biblioteca.Api.Controllers
         {
             var obras = _dbContext
                         .Obras
-                        .Include(e => e.Autores)
+                        .Include(e => e.Atores)
                         .ToArray();
 
-            var res = from x in obras
-                     from y in x.Autores
-                     select new
-                     {
-                         Titulo = x.Titulo,
-                         Editora = x.Editora,
-                         Foto = x.Foto,
-                         Autores = new { Nome = y.Nome }
-                     };
+            return Ok(obras);
+        }
 
-            return Ok(res);
+        [HttpGet("{id}")]
+        public IActionResult RetornaPorId(int id)
+        {
+            var obra = _dbContext.Obras.Where(e => e.ObraId == id).Include(e => e.Atores).FirstOrDefault();
+
+            if(obra == null)
+                return BadRequest();
+
+            return Ok(obra);
         }
 
         [HttpPost]
         public IActionResult InserirObra([FromBody] Obra obra)
         {
-
-            foreach (var item in obra.Autores)
-                _dbContext.Entry(item).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-
-            _dbContext.Entry(obra).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+            _dbContext.Add(obra);
             _dbContext.SaveChanges();
             return NoContent();
         }
+
+        [HttpPut("{id}")]
+        public IActionResult AtualizaObra(int id, [FromBody] Obra obra)
+        {
+
+            var obraContext = _dbContext.Obras.Where(x => x.ObraId == id);
+            
+            if (obraContext == null)
+                return BadRequest();
+            
+            _dbContext.Entry(obra).Property(e => e.ObraId).IsModified = false;
+            _dbContext.Entry(obra).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
+
+            foreach (var item in obra.Atores)
+            {
+                _dbContext.Entry(item).Property(i => i.AtorId).IsModified = false;
+                _dbContext.Entry(item).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            }
+           
+
+            _dbContext.SaveChanges();
+            return NoContent();
+        }
+
+         [HttpDelete("{id}")]
+         public IActionResult DeletarObra(int id)
+         {
+             var obraContext = _dbContext.Obras.Where(x => x.ObraId == id).FirstOrDefault();
+
+             if(obraContext == null)
+                return BadRequest();
+
+
+            _dbContext.Entry(obraContext).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+            _dbContext.SaveChanges();
+             return NoContent();
+         }
     }
 }

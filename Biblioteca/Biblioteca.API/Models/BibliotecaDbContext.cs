@@ -14,20 +14,6 @@ namespace Biblioteca.Api.Models
         }
         public DbSet<Obra> Obras { get; set; }
         public DbSet<Ator> Atores { get; set; }
-   
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Obra>()
-                .HasKey(e => e.ObraId);
-
-            modelBuilder.Entity<Ator>()
-                .HasKey(e => e.AtorId);
-
-            modelBuilder.Entity<Obra>()
-            .HasMany(e => e.Autores);
-
-                    
-        }
 
     }    
 }
